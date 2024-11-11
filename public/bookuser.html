@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Livres</title>
+    <script>
+        async function fetchBooks() {
+            try {
+                const response = await fetch('/api/bookusers');
+                if (!response.ok) {
+                    throw new Error('Échec de la récupération des livres');
+                }
+                const books = await response.json();
+                document.getElementById('booksList').innerHTML = books.map(book => `<li>${book.title} by ${book.author}</li>`).join('');
+            } catch (error) {
+                console.error(error);
+                alert('Erreur lors de la récupération des livres');
+            }
+        }
+
+        async function searchBooks() {
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const category = document.getElementById('category').value;
+            try {
+                const response = await fetch(`/api/bookusers/search?title=${title}&author=${author}&category=${category}`);
+                if (!response.ok) {
+                    throw new Error('Échec de la recherche des livres');
+                }
+                const books = await response.json();
+                document.getElementById('searchResults').innerHTML = books.map(book => `<li>${book.title} by ${book.author}</li>`).join('');
+            } catch (error) {
+                console.error(error);
+                alert('Erreur lors de la recherche des livres');
+            }
+        }
+
+        async function addToCart() {
+            const userID = document.getElementById('userID1').value;
+            const bookID = document.getElementById('bookID1').value;
+            try {
+                const response = await fetch('/api/bookusers/gettocard', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userID, bookID })
+                });
+                if (!response.ok) {
+                    throw new Error('Échec de l\'ajout au panier');
+                }
+                alert('Livre ajouté au panier');
+            } catch (error) {
+                console.error(error);
+                alert('Erreur lors de l\'ajout au panier');
+            }
+        }
+
+        async function borrowBook() {
+            const userID = document.getElementById('userID2').value;
+            const bookID = document.getElementById('bookID2').value;
+            try {
+                const response = await fetch('/api/bookusers/borrow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userID, bookID })
+                });
+                if (!response.ok) {
+                    throw new Error('Échec de l\'emprunt du livre');
+                }
+                alert('Livre emprunté avec succès');
+            } catch (error) {
+                console.error(error);
+                alert('Erreur lors de l\'emprunt du livre');
+            }
+        }
+
+        async function payForBook() {
+            const userID = document.getElementById('userID3').value;
+            const paymentDetails = document.getElementById('paymentDetails').value;
+            try {
+                const response = await fetch('/api/bookusers/payFor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userID, paymentDetails })
+                });
+                if (!response.ok) {
+                    throw new Error('Échec du paiement');
+                }
+                alert('Paiement effectué avec succès');
+            } catch (error) {
+                console.error(error);
+                alert('Erreur lors du paiement');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Gestion des Livres</h1>
+    
+    <h2>Liste de tous les livres</h2>
+    <button onclick="fetchBooks()">Afficher tous les livres</button>
+    <ul id="booksList"></ul>
+
+    <h2>Recherche de livres</h2>
+    <input type="text" id="title" placeholder="Titre">
+    <input type="text" id="author" placeholder="Auteur">
+    <input type="text" id="category" placeholder="Catégorie">
+    <button onclick="searchBooks()">Rechercher</button>
+    <ul id="searchResults"></ul>
+
+    <h2>Ajouter un livre au panier</h2>
+    <input type="text" id="userID1" placeholder="ID Utilisateur">
+    <input type="text" id="bookID1" placeholder="ID Livre">
+    <button onclick="addToCart()">Ajouter au panier</button>
+
+    <h2>Emprunter un livre</h2>
+    <input type="text" id="userID2" placeholder="ID Utilisateur">
+    <input type="text" id="bookID2" placeholder="ID Livre">
+    <button onclick="borrowBook()">Emprunter</button>
+
+    <h2>Effectuer un paiement</h2>
+    <input type="text" id="userID3" placeholder="ID Utilisateur">
+    <input type="text" id="paymentDetails" placeholder="Détails de paiement">
+    <button onclick="payForBook()">Payer</button>
+</body>
+</html>

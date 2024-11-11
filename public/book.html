@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Livres</title>
+</head>
+<body>
+    <h1>Gestion des Livres</h1>
+
+    <!-- Formulaire pour ajouter ou mettre à jour un livre -->
+    <div>
+        <h3>Ajouter / Modifier un Livre</h3>
+        <input type="hidden" id="bookId">
+        <label>Titre : <input type="text" id="title"></label><br>
+        <label>Auteur : <input type="text" id="author"></label><br>
+        <label>Catégorie : <input type="text" id="category"></label><br>
+        <label>Année : <input type="number" id="year"></label><br>
+        <button onclick="addOrUpdateBook()">Enregistrer</button>
+    </div>
+
+    <!-- Liste des livres -->
+    <div>
+        <h3>Liste des Livres</h3>
+        <ul id="bookList"></ul>
+    </div>
+
+    <script>
+        // Fonction pour afficher tous les livres
+        async function fetchBooks() {
+            const response = await fetch('/api/books'); // Changer ici pour correspondre à la nouvelle route
+            const books = await response.json();
+            const bookList = document.getElementById('bookList');
+            bookList.innerHTML = '';
+
+            books.forEach(book => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <strong>${book.title}</strong> - ${book.author} (${book.year})
+                    <button onclick="editBook(${book.id})">Modifier</button>
+                    <button onclick="deleteBook(${book.id})">Supprimer</button>
+                `;
+                bookList.appendChild(li);
+            });
+        }
+
+        // Fonction pour ajouter ou mettre à jour un livre
+        async function addOrUpdateBook() {
+            const bookId = document.getElementById('bookId').value;
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const category = document.getElementById('category').value;
+            const year = document.getElementById('year').value;
+
+            const book = { title, author, category, year };
+
+            if (bookId) {
+                // Mettre à jour un livre
+                await fetch(`/books/update/${bookId}`, { // Changer ici pour correspondre à la nouvelle route
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(book)
+                });
+                alert('Livre mis à jour');
+            } else {
+                // Ajouter un livre
+                await fetch('/api/books/add', { // Changer ici pour correspondre à la nouvelle route
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(book)
+                });
+                alert('Livre ajouté');
+            }
+
+            // Réinitialiser le formulaire et rafraîchir la liste des livres
+            document.getElementById('bookId').value = '';
+            document.getElementById('title').value = '';
+            document.getElementById('author').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('year').value = '';
+            fetchBooks();
+        }
+
+        // Charger les livres au démarrage
+        window.onload = fetchBooks;
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panier</title>
+    <script>
+        async function viewCart() {
+            const userID = document.getElementById('userID').value;
+            const response = await fetch(`/api/card/${userID}`);
+            const cartItems = await response.json();
+            document.getElementById('cartList').innerHTML = cartItems.map(item => `<li>${item.book_id}</li>`).join('');
+        }
+
+        async function addToCart() {
+            const userID = document.getElementById('userID').value;
+            const bookID = document.getElementById('bookID').value;
+            await fetch('/api/card/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userID, bookID })
+            });
+            alert('Livre ajouté au panier');
+            viewCart();
+        }
+
+        async function removeFromCart() {
+            const userID = document.getElementById('userID').value;
+            const bookID = document.getElementById('bookID').value;
+            await fetch('/api/card/remove', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userID, bookID })
+            });
+            alert('Livre supprimé du panier');
+            viewCart();
+        }
+    </script>
+</head>
+<body>
+    <h1>Gestion du Panier</h1>
+
+    <h2>Afficher le panier</h2>
+    <input type="text" id="userID" placeholder="ID Utilisateur">
+    <button onclick="viewCart()">Voir le panier</button>
+    <ul id="cartList"></ul>
+
+    <h2>Ajouter un livre au panier</h2>
+    <input type="text" id="bookID" placeholder="ID Livre">
+    <button onclick="addToCart()">Ajouter au panier</button>
+
+    <h2>Supprimer un livre du panier</h2>
+    <input type="text" id="bookID" placeholder="ID Livre">
+    <button onclick="removeFromCart()">Supprimer du panier</button>
+</body>
+</html>

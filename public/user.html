@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des Utilisateurs</title>
+</head>
+<body>
+    <h1>Gestion des Utilisateurs</h1>
+
+    <!-- Formulaire pour ajouter un utilisateur -->
+    <div>
+        <h3>Ajouter un Utilisateur</h3>
+        <label>Nom : <input type="text" id="name"></label><br>
+        <label>Email : <input type="email" id="email"></label><br>
+        <label>Mot de passe : <input type="password" id="password"></label><br>
+        <button onclick="addUser()">Ajouter</button>
+    </div>
+
+    <!-- Liste des utilisateurs -->
+    <div>
+        <h3>Liste des Utilisateurs</h3>
+        <ul id="userList"></ul>
+    </div>
+
+    <script>
+        // Fonction pour afficher tous les utilisateurs
+        async function fetchUsers() {
+            const response = await fetch('/api/users');
+            const users = await response.json();
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+
+            users.forEach(user => {
+                const li = document.createElement('li');
+                li.innerHTML = `${user.name} - ${user.email}`;
+                userList.appendChild(li);
+            });
+        }
+
+        // Fonction pour ajouter un utilisateur
+        async function addUser() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const user = { name, email, password };
+
+            await fetch('/api/users/registre', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            });
+
+            alert('Utilisateur ajouté');
+            // Réinitialiser le formulaire
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            fetchUsers(); // Rafraîchir la liste des utilisateurs
+        }
+
+        // Charger les utilisateurs au démarrage
+        window.onload = fetchUsers;
+    </script>
+</body>
+</html>
